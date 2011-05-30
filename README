@@ -1,0 +1,2 @@
+avi_view.c: gui-to-be for brmVision. Run vith avi file as parameter, use
+  hjkl to move the region of interest, resize with shift. Space pauses view.
