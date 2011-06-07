@@ -55,8 +55,8 @@ void to_o1o2(IplImage* in_img, IplImage* o1o2) {
 //            ptr_out[3 * (x - xstart)] = (unsigned char) MAX( MIN(o1, 255), 0);
 //           ptr_out[3 * (x - xstart) + 1] = (unsigned char) MAX( MIN(o2, 255), 0);
 //            ptr_out[3 * (x - xstart) + 2] = 0;
-            ptr_out[3 * (x - xstart) + 0] = b;
-            ptr_out[3 * (x - xstart) + 1] = g;
+            ptr_out[3 * (x - xstart) + 0] = o1;
+            ptr_out[3 * (x - xstart) + 1] = o2;
             ptr_out[3 * (x - xstart) + 2] = 0;
         }
     }
