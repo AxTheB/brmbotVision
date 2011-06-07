@@ -1,13 +1,14 @@
 #include "cv.h"
 #include "highgui.h"
 #include "stdio.h"
+#include "imgutil.h"
 
 void to_o1o2(IplImage* in_img, IplImage* o1o2) {
     //prevede frame z RGB na o1o2
     //pro jednoduchost pracuje s 3 plane obrazem s tretim planem prazdnym
     int o1, o2, r, g, b;
     int x, y;
-    int ystart, ystop, xstart, xstop;
+    imgdim in_img_dim;
 
     int o1orig;
     int omin = 0;
@@ -15,26 +16,16 @@ void to_o1o2(IplImage* in_img, IplImage* o1o2) {
 
     // pokud je v in_img definovany region of interest, tak ho pouzijeme
     //  - neni treba prevadet cely obraz z kamery, jen cast.
-    if (in_img->roi) {
-        ystart = in_img->roi->yOffset;
-        xstart = in_img->roi->xOffset;
-        ystop = MIN(ystart + in_img->roi->height, in_img->height);
-        xstop = MIN(xstart + in_img->roi->width, in_img->width);
-    } else {
-        xstart=0;
-        ystart=0;
-        ystop=in_img->height;
-        xstop=in_img->width;
-    }
+    in_img_dim = get_dimensions(in_img);
 
-    for (y = ystart; y < ystop; y++) {
+    for (y = in_img_dim.ystart; y < in_img_dim.ystop; y++) {
         uchar* ptr = (uchar*) (
                 in_img->imageData + y * in_img->widthStep
                 );
         uchar* ptr_out = (uchar*) (
-                o1o2->imageData + (y - ystart) * o1o2->widthStep
+                o1o2->imageData + (y - in_img_dim.ystart) * o1o2->widthStep
                 );
-        for (x = xstart; x < xstop; x++) {
+        for (x = in_img_dim.xstart; x < in_img_dim.xstop; x++) {
             b = ptr[3 * x];
             g = ptr[3 * x + 1];
             r = ptr[3 * x + 2];
@@ -55,9 +46,9 @@ void to_o1o2(IplImage* in_img, IplImage* o1o2) {
 //            ptr_out[3 * (x - xstart)] = (unsigned char) MAX( MIN(o1, 255), 0);
 //           ptr_out[3 * (x - xstart) + 1] = (unsigned char) MAX( MIN(o2, 255), 0);
 //            ptr_out[3 * (x - xstart) + 2] = 0;
-            ptr_out[3 * (x - xstart) + 0] = o1;
-            ptr_out[3 * (x - xstart) + 1] = o2;
-            ptr_out[3 * (x - xstart) + 2] = 0;
+            ptr_out[3 * (x - in_img_dim.xstart) + 0] = o1;
+            ptr_out[3 * (x - in_img_dim.xstart) + 1] = o2;
+            ptr_out[3 * (x - in_img_dim.xstart) + 2] = 0;
         }
     }
 }

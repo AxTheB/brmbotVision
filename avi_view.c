@@ -2,16 +2,66 @@
 #include "highgui.h"
 #include "stdio.h"
 #include "o2c3conv.h"
+#include "imgutil.h"
 
 int g_slider_position = 0;
 CvCapture* capture = NULL;
 
+void find_way(IplImage* in_img, IplImage* out_img, int pxdelta){
+    //Najde cestu metodou porovnavani se stredovym pixelem 
+    //hleda v celem obrazku/roi
+    imgdim in_img_dim;
+    in_img_dim = get_dimensions(in_img);
 
-void find_way(IplImage* image, int reg_x, int reg_y, int reg_width, int reg_height){
-    int start_x, start_y, _start_x, _start_y;
-    start_x = reg_x + reg_width;
-    start_y = reg_y + reg_height/2;
-    //TODO ;)
+    int refy, last_refy, worky1, worky2, workx, tmppxdiff;
+    uchar *refpixel, *workpixel;
+
+    refy = (in_img_dim.ystop - in_img_dim.ystart)/2;
+
+    last_refy = refy;
+
+    //projizdi pracovni oblast zprava doleva
+    for (workx=in_img_dim.xstop; workx >= in_img_dim.xstart; workx--) {
+
+        //hleda rozdilny pixel smerem nahoru (k nule)
+        worky1 = refy;
+        worky2 = refy;
+        refpixel = px_pos(in_img,workx, refy); 
+        //nahoru
+        while (worky1 > in_img_dim.ystart){
+            tmppxdiff = pxdiff(refpixel, px_pos(in_img, workx, worky1));
+            //printf("tmppxdiff %d ", tmppxdiff);
+            if (tmppxdiff > pxdelta) {
+                break;
+            }
+            worky1--;
+        }
+        //dolu
+        while (worky2 < (in_img_dim.ystop-1)){
+            if (pxdiff(refpixel, px_pos(in_img, workx, worky2)) > pxdelta) {
+                break;
+            }
+            worky2++;
+        }
+        last_refy = refy;
+        refy = (worky1 + worky2) / 2;
+
+        workpixel = px_pos(out_img, workx, (refy+last_refy)/2);
+        workpixel[0] = 0;
+        workpixel[1] = 255;
+        workpixel[2] = 128;
+
+        workpixel = px_pos(out_img, workx, worky1);
+        workpixel[0] = 128;
+        workpixel[1] = 0;
+        workpixel[2] = 128;
+
+        workpixel = px_pos(out_img, workx, worky2);
+        workpixel[0] = 128;
+        workpixel[1] = 0;
+        workpixel[2] = 128;
+
+    }
 }
 
 
@@ -60,7 +110,6 @@ int main(int argc, char** argv){
         IplImage* newframe  = cvCreateImage(cvGetSize(frame), IPL_DEPTH_8U, 3);
         IplImage* newframe2 = cvCreateImage(cvGetSize(frame), IPL_DEPTH_8U, 3);
         to_o1o2(frame,newframe);
-        //do_laplace(newframe, newframe);
         to_c1c2c3(frame, newframe2, lookup_table);
 
         cvRectangle(frame, cvPoint(0,0), cvPoint(roi_width-1, roi_height-1),
@@ -68,6 +117,8 @@ int main(int argc, char** argv){
         cvLine(frame, cvPoint(0,roi_height/2), cvPoint(roi_width,roi_height/2),
                 cvScalar(0, 0, 255, 0), 1, 8, 0);
         cvResetImageROI(frame);
+        find_way(newframe, newframe, 10);
+        find_way(newframe2, newframe2, 10);
         cvShowImage("Display", frame);
         cvShowImage("o1o2", newframe);
         cvShowImage("c1c2c3", newframe2);
@@ -77,21 +128,21 @@ int main(int argc, char** argv){
             switch(c){
                 //hjkl pro pohyb roi, se shiftem meni velikost
                 case 104:
-                             roi_x--; break;
+                             roi_x--; printf( "roi_x: %d", roi_x); break;
                 case 108:
-                             roi_x++; break;
+                             roi_x++; printf( "roi_x: %d", roi_x); break;
                 case 106:
-                             roi_y++; break;
+                             roi_y++; printf( "roi_y: %d", roi_y); break;
                 case 107:
-                             roi_y--; break;
+                             roi_y--; printf( "roi_y: %d", roi_y); break;
                 case 72:
-                            roi_width--; break;
+                            roi_width--; printf( "roi_width: %d", roi_width); break;
                 case 76:
-                            roi_width++; break;
+                            roi_width++; printf( "roi_width: %d", roi_width); break;
                 case 75:
-                            roi_height--; break;
+                            roi_height--; printf( "roi_height: %d", roi_height); break;
                 case 74:
-                            roi_height++; break;
+                            roi_height++; printf( "roi_height: %d", roi_height); break;
                 case 32:
                             cvWaitKey(0); break;
             }
