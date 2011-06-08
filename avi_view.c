@@ -126,6 +126,8 @@ int main(int argc, char** argv){
                 cvScalar(0, 255, 0, 0), 1, 8, 0);
         kam = find_way(newframe, newframe, fw_pxdiff);
         kam2 = find_way(newframe2, newframe2, fw_pxdiff);
+        cvLine(frame, cvPoint(0,roi_height/2), cvPoint(roi_width,roi_height/2),
+                cvScalar(0, 255, 255, 0), 1, 8, 0);
         cvLine(frame, cvPoint(0,(roi_height+kam+kam2)/2), cvPoint(roi_width,(roi_height+kam+kam2)/2),
                 cvScalar(0, 0, 255, 0), 1, 8, 0);
         cvResetImageROI(frame);
