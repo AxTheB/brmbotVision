@@ -103,7 +103,14 @@ int main(int argc, char** argv){
     cvNamedWindow( "Display", CV_WINDOW_AUTOSIZE);
     cvNamedWindow( "o1o2", CV_WINDOW_AUTOSIZE);
     cvNamedWindow( "c1c2c3", CV_WINDOW_AUTOSIZE);
-    capture = cvCreateFileCapture(argv[1]);
+    printf("Argc %d", argc);
+    if( argc==1 ) {
+        capture = cvCreateCameraCapture(0);
+    } else {
+        capture = cvCreateFileCapture( argv[1] );
+    }
+    assert( capture != NULL );
+
     int frames = (int) cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_COUNT);
     if (frames != 0){
         cvCreateTrackbar("Position", "Display", &g_slider_position, frames, onTrackbarSlide);
