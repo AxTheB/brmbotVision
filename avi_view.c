@@ -111,10 +111,10 @@ int main(int argc, char** argv){
     }
     assert( capture != NULL );
 
-    int frames = (int) cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_COUNT);
-    if (frames != 0){
-        cvCreateTrackbar("Position", "Display", &g_slider_position, frames, onTrackbarSlide);
-    }
+    //int frames = (int) cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_COUNT);
+    //if (frames != 0){
+    //    cvCreateTrackbar("Position", "Display", &g_slider_position, frames, onTrackbarSlide);
+    //}
     IplImage* frame;
 
     while(1){
